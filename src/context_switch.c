@@ -57,7 +57,6 @@ void zombie_reaper() {
             if (task_pool[i].state == ZOMBIE) {
                 uart_printf("reaper %d!\n", i);
                 task_pool[i].state = EXIT;
-                // WARNING: release kernel stack if dynamic allocation
             }
         }
         //schedule();
@@ -142,7 +141,7 @@ void task_init(){
     }
 }
 
-/*void kernel_main(){ //test core timer context switch
+/*void kernel_main(){ //test core timer context switch in kernel mode
     privilege_task_create(test_task0);
     privilege_task_create(test_task1);
     init();
@@ -151,8 +150,8 @@ void task_init(){
 void boot_main(){
     task_init();
     task_queue_init(&run_queue);
-    privilege_task_create(idle);
-    privilege_task_create(zombie_reaper);
-    privilege_task_create(demo_syscall);
+    privilege_task_create(idle); // kernel mode
+    privilege_task_create(zombie_reaper); // kernel mode
+    privilege_task_create(demo_syscall); // user mode
     init();
 }
