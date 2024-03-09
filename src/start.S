@@ -65,13 +65,13 @@ el1_start:
 	//msr spsr_el1, x0
 	/*ldr x0, =SPSR_EL1_VALUE
 	msr spsr_el1, x0*/
-	bl boot_main
+	bl boot_main //test context switch
 	/*adr x0, el0_start
 	msr elr_el1, x0
 	eret*/
 el0_start:
 	ldr x1, =0x40000
 	mov sp, x1
-	bl main
+	bl main //mini shell entry
 	b 1b
 
