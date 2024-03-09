@@ -21,16 +21,17 @@ extern struct task* get_user_current ();
 void show_exception_message(unsigned long long elr, unsigned long long esr){
 	int class = (esr >> 26) & 0b111111;
 	int iss = esr & 0x1ffffff;
-	if (class == 0b010101){ //system call
-		if (iss == 1){
+	if (class == 0b010101){ // test command: exc, irq in mini shell
+		if (iss == 1){ // exc: svc #1
 			uart_printf("Exception return address %x\n",elr);
 			uart_printf("Exception class (EC) %x\n",class);
 			uart_printf("Instruction specific syndrom (ISS) %x\n",iss);
 		}
-		else if (iss == 2){
-			//core_timer_enable();
+		else if (iss == 2){ // irq: svc #2
+			//core_timer_enable(); /* test core timer interrupt */
 		}
-	}else
+	}
+	else // other exception occur
 	{
 		uart_printf("Exception return address %x\n",elr);
 		uart_printf("Exception class (EC) %x\n",class);
@@ -39,11 +40,11 @@ void show_exception_message(unsigned long long elr, unsigned long long esr){
 	
 }
 
-void core_timer_interrupt(){
+/*void core_timer_interrupt(){
 	uart_printf("core timer interrupt\n");
 	asm volatile ("mrs x0, cntfrq_el0");
 	asm volatile ("msr cntp_tval_el0, x0");
-}
+}*/
 
 void core_timer_ISR(){
 	register unsigned int expired_period = EXPIRE_PERIOD;
