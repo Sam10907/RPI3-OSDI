@@ -128,11 +128,11 @@ void irq_return_user(){
 void sys_call_router(uint64_t sys_call_num, struct trapframe* tf) {
 	switch (sys_call_num) {
         case SYS_GET_TASK_ID:
-            sys_get_taskid(tf);
-            break;
-		case SYS_EXIT:
-			sys_exit(tf);
-			break;
+        	sys_get_taskid(tf);
+            	break;
+	case SYS_EXIT:
+		sys_exit(tf);
+		break;
 	}
 }
 
@@ -140,6 +140,6 @@ void syscall_table(unsigned long long elr, unsigned long long esr, struct trapfr
 	int class = (esr >> 26) & 0b111111;
 	if (class == 0b010101){ //system call
 		uint64_t syscall_num = tf->x[8];
-        sys_call_router(syscall_num, tf);
+        	sys_call_router(syscall_num, tf);
 	}
 }
