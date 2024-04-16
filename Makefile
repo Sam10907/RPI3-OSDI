@@ -1,10 +1,11 @@
 TOOLCHAIN_PREFIX = aarch64-linux-gnu-
-CC = $(TOOLCHAIN_PREFIX)gcc-8
+CC = $(TOOLCHAIN_PREFIX)gcc
 LD = $(TOOLCHAIN_PREFIX)ld
 OBJCPY = $(TOOLCHAIN_PREFIX)objcopy
 
 BUILD_DIR = build
 SRC_DIR = src
+USER_DIR = user
 
 LINKER_FILE = $(SRC_DIR)/linker.ld
 SRCS_C = $(wildcard $(SRC_DIR)/*.c)
@@ -12,7 +13,12 @@ OBJS_C = $(SRCS_C:$(SRC_DIR)/%.c=$(BUILD_DIR)/c/%.o)
 SRCS_ASM = $(wildcard $(SRC_DIR)/*.S)
 OBJS_ASM = $(SRCS_ASM:$(SRC_DIR)/%.S=$(BUILD_DIR)/asm/%.o)
 
-CFLAGS = -Wall -I include -c -fno-stack-protector -fno-builtin
+USER_C = $(wildcard $(USER_DIR)/*.c)
+USER_ASM = $(wildcard $(USER_DIR)/*.S)
+USER_OBJS_FILES = $(USER_C:$(USER_DIR)/%.c=$(BUILD_DIR)/user/%_c.o)
+USER_OBJS_FILES += $(USER_ASM:$(USER_DIR)/%.S=$(BUILD_DIR)/user/%_asm.o)
+
+CFLAGS =  -Wall -Wextra -nostdlib -nostdinc -fno-builtin-printf -fno-builtin-memcpy -fno-builtin-exit -Iinclude -Ilib -c
 
 .PHONY: all clean
 
@@ -28,9 +34,24 @@ $(BUILD_DIR)/asm/%.o: $(SRC_DIR)/%.S
 	mkdir -p $(@D)
 	$(CC) $(CFLAGS) $< -o $@
 
-kernel8.img: $(OBJS_C) $(OBJS_ASM)
-	$(LD) $(OBJS_C) $(OBJS_ASM) -T $(LINKER_FILE) -o kernel8.elf
+kernel8.img: $(OBJS_C) $(OBJS_ASM) user_embed.elf
+	$(LD) $(OBJS_C) $(OBJS_ASM) user_embed.elf -T $(LINKER_FILE) -o kernel8.elf
 	$(OBJCPY) -O binary kernel8.elf kernel8.img 
+
+# build user library
+
+$(BUILD_DIR)/user/%_c.o: $(USER_DIR)/%.c
+	mkdir -p $(@D)
+	$(CC) $(CFLAGS) -fno-zero-initialized-in-bss $< -o $@
+
+$(BUILD_DIR)/user/%_asm.o: $(USER_DIR)/%.S
+	mkdir -p $(@D)
+	$(CC) $(CFLAGS) -fno-zero-initialized-in-bss $< -o $@
+
+user_embed.elf: $(USER_OBJS_FILES) build/asm/Sys.o build/c/my_string.o
+	$(LD) $(USER_OBJS_FILES) build/asm/Sys.o build/c/my_string.o -T $(USER_DIR)/linker.ld -o user.elf
+	$(OBJCPY) -O binary user.elf user.img
+	$(LD) -r -b binary user.img -o user_embed.elf
 
 # run emulator
 

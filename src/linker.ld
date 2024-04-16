@@ -1,6 +1,8 @@
 SECTIONS
 {
-  . = 0x80000;
+  . = 0xFFFF000000000000;
+  . += 0x80000;
+  __kernel_start = .;
   .text :
   {
     KEEP(*(.text.boot))
@@ -10,15 +12,20 @@ SECTIONS
   {
     *(.data)
   }
-  .bss ALIGN(16) (NOLOAD) :
+
+  . = ALIGN(0x8);
+	.bss : 
+  { 
+    bss_begin = .;
+    *(.bss*)
+    bss_end = .;
+  } 
+  . = ALIGN(0x1000);
+  pg_dir = .;
+  .data.pgd :
   {
-    __bss_start = .;
-
-    *(.bss)
-
-    __bss_end = .;
+    . += 515 * (1 << 12);
   }
-  _end = .;
+  . = ALIGN(0x1000);
+  __kernel_end = .;
 }
-
-__bss_size = (__bss_end - __bss_start) >> 3;

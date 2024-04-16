@@ -57,9 +57,9 @@
 
 exception_vector_table:
 	/* Current EL with SP0
-       	当前系统运行在EL1时使用EL0的栈指针SP
-       	这是一种异常错误的类型
-     	*/
+       	當前系統運行在EL1時使用EL0的棧指針SP
+       	這是一種異常錯誤的類型
+    */
 	b el1_sync_invalid
   	.align 7
 	b el1_irq_invalid
@@ -69,8 +69,8 @@ exception_vector_table:
 	b el1_error_invalid
 	.align 7
 	/* Current EL with SPx
-	当前系统运行在EL1时使用EL1的栈指针SP
-	这说明系统在内核态发生了异常
+		當前系統運行在EL1時使用EL1的棧指針SP
+		這說明系統在內核態發生了異常
  	*/
 	b el1_sync_invalid
 	.align 7
@@ -81,7 +81,7 @@ exception_vector_table:
 	b el1_error_invalid
 	.align 7
 	 /* Lower EL using AArch64
-	在用户态的aarch64的程序发生了异常
+		在用戶態的aarch64的程序發生了異常
 	*/
 	b el0_sync_invalid
 	.align 7
@@ -92,7 +92,7 @@ exception_vector_table:
 	b el0_error_invalid
 	.align 7
 	/* Lower EL using AArch32
-	在用户态的aarch32的程序发生了异常
+		在用戶態的aarch32的程序發生了異常
 	*/
 	b el0_sync_invalid
 	.align 7
@@ -143,8 +143,8 @@ el0_irq_invalid:
 	load_all
 	eret*/
 	save_all
-	bl irq_sp_switch_user
-	bl irq_return_user
+	bl irq_sp_switch
+	bl irq_return
 	load_all
 	eret
 el0_fiq_invalid:

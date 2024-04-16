@@ -1,6 +1,7 @@
 #include "typedef.h"
-#ifndef __CONTEXT_SWITCH_H__
-#define __CONTEXT_SWITCH_H__
+#ifndef __SCHEDULE_H__
+#define __SCHEDULE_H__
+#define MAX_PROCESS_PAGES 16
 struct cpu_register
 {
     uint64_t x19;
@@ -18,6 +19,15 @@ struct cpu_register
     uint64_t sp; // stack pointer
 };
 
+struct mm_struct
+{
+    uint64_t pgd;
+    int user_pages_count;
+	uint64_t user_pages[MAX_PROCESS_PAGES];
+	int kernel_pages_count;
+	uint64_t kernel_pages[MAX_PROCESS_PAGES];    
+};
+
 enum state{
     RUNNING,
     ZOMBIE,
@@ -31,6 +41,7 @@ struct task
     int resched;
     enum state state;
     struct cpu_register register_set;
+    struct mm_struct mm;
 };
 
 struct trapframe
@@ -41,8 +52,14 @@ struct trapframe
     uint64_t spsr_el1;
 };
 
+void context_switch(struct task *next);
+void privilege_task_create(void(*func)());
+void init();
+void exec_user_program(void (*func)());
+void task_init();
 void schedule();
-void do_exec();
+int do_exec(uint64_t start, uint64_t size, uint64_t pc);
 void do_exit(int);
+void schedule_init();
 
 #endif

@@ -47,8 +47,8 @@ void uart_printf(char* fmt, ...) {
     __builtin_va_list args;
     __builtin_va_start(args, fmt);
 
-    extern volatile unsigned char _end;  // defined in linker
-    char* s = (char*)&_end;              // put temporary string after code
+    extern volatile unsigned char __kernel_end;  // defined in linker
+    char* s = (char*)&__kernel_end;              // put temporary string after code
     vsprintf(s, fmt, args);
 
     while (*s) {

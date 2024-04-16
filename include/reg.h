@@ -1,8 +1,9 @@
 #ifndef __REG_H_
 #define __REG_H_
 
+#define BASE (0xffff000000000000 + 0x3f000000)
+
 //GPIO register
-#define BASE ((volatile unsigned int) 0x3f000000)
 #define GPFSEL1 ((volatile unsigned int*)(BASE + 0x200004))
 #define GPPUD ((volatile unsigned int*)(BASE + 0x200094))
 #define GPPUDCLK0 ((volatile unsigned int*)(BASE + 0x200098))
