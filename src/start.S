@@ -112,16 +112,6 @@ el1_start:
 1:
 	b 1b
 
-	//bl boot_main //test context switch
-	/*adr x0, el0_start
-	msr elr_el1, x0
-	eret*/
-/*el0_start:
-	ldr x1, =0x40000
-	mov sp, x1
-	bl main //mini shell entry
-	b 1b*/
-
 	.macro create_pgd_entry, table, virt, tmp1, tmp2, tmp3
 	create_table_entry \table, \virt, PGD_SHIFT, \tmp1, \tmp2
 	create_table_entry \table, \virt, PUD_SHIFT, \tmp1, \tmp2

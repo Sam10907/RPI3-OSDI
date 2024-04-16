@@ -7,3 +7,11 @@ void printf(char *fmt, ...){
 	char *s = buf;
 	write_to_uart(s);
 }
+
+int read(char *str){
+	return read_from_uart(str);
+}
+
+int write(const char *str){
+	return write_to_uart(str);
+}

@@ -4,9 +4,9 @@
 static char cmd[128] = "";
 
 void input_shell(){
-	read_from_uart(cmd);
+	read(cmd);
 	char end[2] = {'\n','\0'};
-	write_to_uart(end);
+	write(end);
 }
 
 int parse_cmdline(){

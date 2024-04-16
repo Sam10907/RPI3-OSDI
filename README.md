@@ -11,7 +11,7 @@
   * 實作User library為主程式提供進入點(entry point)以及系統呼叫(system call)並在主程式結束後呼叫exit
   * 為每一個user task建立屬於它的虛擬定址空間
 # Reference
-* https://grasslab.github.io/osdi/en/index.html
-* https://oscapstone.github.io/index.html#
-* https://blog.ykzheng.com/notes/nctu/osdi/
-* https://github.com/s-matyukevich/raspberry-pi-os/tree/master
+* OSDI2020作業文件：https://grasslab.github.io/osdi/en/index.html
+* OSDI2023作業文件：https://oscapstone.github.io/index.html#
+* 交大修課心得 - 作業系統設計與實作：https://blog.ykzheng.com/notes/nctu/osdi/
+* Learning operating system development using Linux kernel and Raspberry Pi: https://github.com/s-matyukevich/raspberry-pi-os/tree/master
