@@ -29,3 +29,9 @@ remain_page_num:
     mov x8, SYS_REMAIN_PAGE_NUM
     svc #0
     ret
+
+.global fork
+fork:
+    mov x8, SYS_FORK
+    svc #0
+    ret

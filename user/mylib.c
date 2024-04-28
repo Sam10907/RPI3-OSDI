@@ -15,3 +15,7 @@ int read(char *str){
 int write(const char *str){
 	return write_to_uart(str);
 }
+
+void delay(int num){
+	while(num--){}
+}

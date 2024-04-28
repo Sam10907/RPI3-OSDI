@@ -164,14 +164,14 @@ page_table_create:
 	/* mapping kernel */
 	mov x1, #0x0
 	mov x2, #VIRT_BASE
-	ldr x3, =(VIRT_BASE + DEVICE_BASE - PAGE_SIZE)
+	ldr x3, =((VIRT_BASE | DEVICE_BASE) - PAGE_SIZE)
 	add x0, x4, #PAGE_SIZE
 	create_page_map x0, x1, x2, x3, BOOT_PTE_NORMAL_ATTR, x4
 
 	/* mapping mmio-device */
 	mov x1, #DEVICE_BASE
-	ldr x2, =(VIRT_BASE + DEVICE_BASE)
-	ldr x3, =(VIRT_BASE + MAX_PHYSICAL_ADDR - PAGE_SIZE)
+	ldr x2, =(VIRT_BASE | DEVICE_BASE)
+	ldr x3, =((VIRT_BASE | MAX_PHYSICAL_ADDR) - PAGE_SIZE)
 	create_page_map x0, x1, x2, x3, BOOT_PTE_DEVICE_ATTR, x4
 
 	mov x30, x29

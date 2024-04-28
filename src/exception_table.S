@@ -1,7 +1,5 @@
-#define BAD_SYNC        0
-#define BAD_IRQ         1
-#define BAD_FIQ         2
-#define BAD_ERROR       3
+#define __ASSEMBLY__
+#include "exception_table.h"
 
 // save general registers to stack
 .macro save_all
@@ -159,5 +157,10 @@ el0_error_invalid:
 	mrs x0, ELR_EL1
 	mrs x1, ESR_EL1
 	bl show_exception_message
+	load_all
+	eret
+
+.global ret_child_process
+ret_child_process:
 	load_all
 	eret

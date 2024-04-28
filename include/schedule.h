@@ -42,6 +42,7 @@ struct task
     enum state state;
     struct cpu_register register_set;
     struct mm_struct mm;
+    int preempt_count;
 };
 
 struct trapframe
@@ -53,13 +54,14 @@ struct trapframe
 };
 
 void context_switch(struct task *next);
-void privilege_task_create(void(*func)());
+int privilege_task_create(void(*func)());
 void init();
 void exec_user_program(void (*func)());
 void task_init();
 void schedule();
 int do_exec(uint64_t start, uint64_t size, uint64_t pc);
 void do_exit(int);
+void copy_process(struct trapframe *tf);
 void schedule_init();
 
 #endif

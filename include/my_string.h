@@ -1,3 +1,5 @@
+#include "typedef.h"
+
 double pow(double x, double y);
 char *itoa(int value, char *s);
 unsigned int vsprintf(char *dst, char *fmt, __builtin_va_list args);

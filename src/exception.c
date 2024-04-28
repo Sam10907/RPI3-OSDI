@@ -75,6 +75,10 @@ void sys_remain_page_num(struct trapframe *tf){
 	tf -> x[0] = remain_page;
 }
 
+void sys_fork(struct trapframe *tf){
+	copy_process(tf);
+}
+
 void irq_sp_switch(){
 	register char *irq_sp;
 	asm volatile("mov %0, sp" : "=r"(irq_sp)); // irq_sp is kernel sp
@@ -90,7 +94,7 @@ void irq_sp_switch(){
 
 void irq_return(){
 	struct task *curr = get_current();
-	if (curr -> resched)
+	if (curr -> resched && curr -> preempt_count)
 	{
 		curr -> resched = 0;
 		curr -> time_slice = 5;
@@ -115,7 +119,17 @@ void sys_call_router(uint64_t sys_call_num, struct trapframe* tf) {
 		case SYS_REMAIN_PAGE_NUM:
 			sys_remain_page_num(tf);
 			break;
+		case SYS_FORK:
+			sys_fork(tf);
+			break;
 	}
+}
+
+void page_fault_handler() {
+    register uint64_t fault_addr;
+    asm volatile("mrs %0, FAR_EL1": "=r"(fault_addr));
+    uart_printf("Page fault address at 0x%x, killed\n", fault_addr);
+	do_exit(0);
 }
 
 void syscall_table(unsigned long long elr, unsigned long long esr, struct trapframe *tf){
@@ -131,5 +145,8 @@ void syscall_table(unsigned long long elr, unsigned long long esr, struct trapfr
 			uint64_t syscall_num = tf->x[8];
         	sys_call_router(syscall_num, tf);
 		}
+	}
+	else if(class == 0x24 ){
+		page_fault_handler();
 	}
 }

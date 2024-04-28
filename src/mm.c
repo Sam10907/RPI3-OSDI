@@ -1,6 +1,7 @@
 #include "mm.h"
 #include "mmu.h"
 #include "schedule.h"
+#include "uart.h"
 
 struct page_t pages[PAGE_FRAMES_NUM];
 uint32_t first_aval_page, last_aval_page;
@@ -12,7 +13,7 @@ void mm_init(){
     uint32_t last_used_page = (uint64_t)kernel_end >> 12;
     uint32_t mmio_start_page = DEVICE_BASE >> 12;
     uint32_t i = 0;
-    for (; i < last_used_page; i++)
+    for (; i <= last_used_page; i++)
     {
         pages[i].status = USED;
     }
@@ -27,7 +28,7 @@ void mm_init(){
     {
         pages[i].status = USED;
     }
-    first_aval_page = last_used_page;
+    first_aval_page = last_used_page + 1;
     last_aval_page = mmio_start_page - 1;
 }
 
@@ -38,7 +39,7 @@ uint64_t get_free_page(){
         if (pages[i].status == AVAL){
             pages[i].status = USED;
             remain_page--;
-            uint64_t virt_addr = (i << 12) + VIRT_BASE;
+            uint64_t virt_addr = (i << 12) | VIRT_BASE;
             uint64_t phy_addr = i << 12;
             memzero((void*)virt_addr, PAGE_SIZE);
             return phy_addr;
@@ -77,19 +78,19 @@ void map_page(struct task *task, uint64_t va, uint64_t page){
     }
     pgd = task->mm.pgd;
     int new_table;
-    uint64_t pud = map_table((uint64_t *)(pgd + VIRT_BASE), PGD_SHIFT, va, &new_table);
+    uint64_t pud = map_table((uint64_t *)(pgd | VIRT_BASE), PGD_SHIFT, va, &new_table);
     if (new_table) {
         task->mm.kernel_pages[task->mm.kernel_pages_count++] = pud;
     }
-    uint64_t pmd = map_table((uint64_t *)(pud + VIRT_BASE) , PUD_SHIFT, va, &new_table);
+    uint64_t pmd = map_table((uint64_t *)(pud | VIRT_BASE) , PUD_SHIFT, va, &new_table);
     if (new_table) {
         task->mm.kernel_pages[task->mm.kernel_pages_count++] = pmd;
     }
-    uint64_t pte = map_table((uint64_t *)(pmd + VIRT_BASE), PMD_SHIFT, va, &new_table);
+    uint64_t pte = map_table((uint64_t *)(pmd | VIRT_BASE), PMD_SHIFT, va, &new_table);
     if (new_table) {
         task->mm.kernel_pages[task->mm.kernel_pages_count++] = pte;
     }
-    map_table_entry((uint64_t *)(pte + VIRT_BASE), va, page);
+    map_table_entry((uint64_t *)(pte | VIRT_BASE), va, page);
     task->mm.user_pages[task->mm.user_pages_count++] = page;
 }
 
@@ -99,7 +100,7 @@ uint64_t allocate_user_page(struct task *task, uint64_t va){
         return 0;
     }
     map_page(task, va, page);
-    return page + VIRT_BASE;
+    return page | VIRT_BASE;
 }
 
 void page_free(struct task *curr){
@@ -109,14 +110,16 @@ void page_free(struct task *curr){
         uint32_t index = curr -> mm.kernel_pages[count] >> 12;
         pages[index].status = AVAL;
         remain_page++;
-        memzero((void*)(curr -> mm.kernel_pages[count] + VIRT_BASE),PAGE_SIZE);
+        memzero((void*)(curr -> mm.kernel_pages[count] | VIRT_BASE),PAGE_SIZE);
     }
+    curr -> mm.kernel_pages_count = 0;
     while (curr -> mm.user_pages_count--)
     {
         int count = curr -> mm.user_pages_count;
         uint32_t index = curr -> mm.user_pages[count] >> 12;
         pages[index].status = AVAL;
         remain_page++;
-        memzero((void*)(curr -> mm.user_pages[count] + VIRT_BASE),PAGE_SIZE);
+        memzero((void*)(curr -> mm.user_pages[count] | VIRT_BASE),PAGE_SIZE);
     }
+    curr -> mm.user_pages_count = 0;
 }

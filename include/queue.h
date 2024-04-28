@@ -15,5 +15,6 @@ void task_queue_init(struct task_queue* q);
 void task_queue_elmt_init(struct task_queue_elmt* elmt, struct task *task);
 void task_queue_push(struct task_queue* q, struct task_queue_elmt* elmt);
 struct task* task_queue_pop(struct task_queue* q);
+void print_queue_info(struct task_queue* q);
 
 #endif

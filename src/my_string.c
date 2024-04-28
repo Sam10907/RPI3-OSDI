@@ -1,3 +1,5 @@
+#include "my_string.h"
+
 double pow(double x, double y) {
     return x * pow(x, y - 1);
 }
@@ -5,7 +7,7 @@ double pow(double x, double y) {
 char *itox(int value, char *s) {
     int idx = 0;
 
-    char tmp[8 + 1];
+    char tmp[64 + 1];
     int tidx = 0;
     while (value) {
         int r = value % 16;
@@ -111,8 +113,8 @@ unsigned int vsprintf(char *dst, char *fmt, __builtin_va_list args) {
             }
             // hex
             if (*fmt == 'x') {
-                int arg = __builtin_va_arg(args, int);
-                char buf[8 + 1];
+                uint64_t arg = __builtin_va_arg(args, uint64_t);
+                char buf[64 + 1];
                 char *p = itox(arg, buf);
                 while (*p) {
                     *dst++ = *p++;

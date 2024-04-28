@@ -2,8 +2,12 @@
 #include "uart.h"
 #include "timer.h"
 #include "queue.h"
-#include "demo.h"
 #include "mm.h"
+#include "exception_table.h"
+
+#define SPSR_EL1_MASK (0b0000 << 6)
+#define SPSR_EL1_EL0 (0b0000 << 0)
+#define SPSR_EL1_VALUE (SPSR_EL1_MASK | SPSR_EL1_EL0)
 
 extern void update_current(struct task*);
 extern void update_user_current(struct task*);
@@ -28,6 +32,14 @@ void context_switch(struct task *next){
     switch_to(&prev -> register_set, &next -> register_set);
 }
 
+void preempt_disable(){
+    get_current() -> preempt_count = 0;
+}
+
+void preempt_enable(){
+    get_current() -> preempt_count = 1;
+}
+
 void idle(){
     uart_printf("enter idle\n");
     uart_printf("Remain pages: %d\n",remain_page);
@@ -40,15 +52,21 @@ void zombie_reaper() {
         for (int i = 0; i < 64; i++) {
             if (task_pool[i].state == ZOMBIE) {
                 uart_printf("reaper %d!\n", i);
+                task_pool[i].resched = 0;
                 task_pool[i].state = EXIT;
-                // WARNING: release kernel stack if dynamic allocation
+                task_pool[i].task_id = i;
+                task_pool[i].time_slice = 5;
+                task_pool[i].mm.pgd = 0;
+                task_pool[i].preempt_count = 1;
+                memzero(&kernel_task_stack[i],4096);
+                memzero(&task_pool[i].register_set,104);
             }
         }
-        //schedule();
+        schedule();
     }
 }
 
-void privilege_task_create(void(*func)()){
+int privilege_task_create(void(*func)()){
     int i;
     for (i = 0; i < 64; i++)
     {
@@ -63,6 +81,7 @@ void privilege_task_create(void(*func)()){
     }
     task_queue_elmt_init(&run_queue_elmt[i],&task_pool[i]);
     task_queue_push(&run_queue,&run_queue_elmt[i]);
+    return i;
 }
 
 void init(){
@@ -103,6 +122,32 @@ void do_exit(int status){
     schedule();
 }
 
+int copy_virtual_memory(struct task *dst){
+    struct task *current = get_current();
+    uint64_t code_va = allocate_user_page(dst,0x1000);
+    uint64_t sp_va = allocate_user_page(dst,USTACK_ADDR);
+    if (code_va == VIRT_BASE || sp_va == VIRT_BASE)
+    {
+        return -1;
+    }
+    memcpy((uint8_t*)(current -> mm.user_pages[0] | VIRT_BASE), (uint8_t*)code_va,PAGE_SIZE); //copy code page
+    memcpy((uint8_t*)(current -> mm.user_pages[1] | VIRT_BASE), (uint8_t*)sp_va,PAGE_SIZE); // copy stack page
+    return 0;
+}
+
+void copy_process(struct trapframe *tf){
+    preempt_disable();
+    int child = privilege_task_create(0);
+    task_pool[child].register_set.sp -= 272;
+    struct trapframe *child_trapframe = (struct trapframe*)task_pool[child].register_set.sp;
+    memcpy((uint8_t*)tf, (uint8_t*)child_trapframe,272);
+    task_pool[child].register_set.x30 = (uint64_t) ret_child_process; // lr register
+    child_trapframe -> x[0] = 0;
+    copy_virtual_memory(&task_pool[child]);
+    preempt_enable();
+    tf -> x[0] = child;
+}
+
 void task_init(){
     for (int i = 0; i < 64; i++)
     {
@@ -113,6 +158,7 @@ void task_init(){
         task_pool[i].mm.pgd = 0;
         task_pool[i].mm.kernel_pages_count = 0;
         task_pool[i].mm.user_pages_count = 0;
+        task_pool[i].preempt_count = 1;
     }
 }
 
