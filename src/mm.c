@@ -103,8 +103,14 @@ uint64_t allocate_user_page(struct task *task, uint64_t va){
     return page | VIRT_BASE;
 }
 
+uint64_t allocate_kernel_page(struct task *task){
+    uint64_t page = get_free_page();
+    task -> mm.kernel_pages[task -> mm.kernel_pages_count++] = page;
+    return page | VIRT_BASE;
+}
+
 void page_free(struct task *curr){
-    while (curr -> mm.kernel_pages_count--)
+    while (curr -> mm.kernel_pages_count-- > 1)
     {
         int count = curr -> mm.kernel_pages_count;
         uint32_t index = curr -> mm.kernel_pages[count] >> 12;
@@ -112,8 +118,8 @@ void page_free(struct task *curr){
         remain_page++;
         memzero((void*)(curr -> mm.kernel_pages[count] | VIRT_BASE),PAGE_SIZE);
     }
-    curr -> mm.kernel_pages_count = 0;
-    while (curr -> mm.user_pages_count--)
+    //curr -> mm.kernel_pages_count = 0;
+    while (curr -> mm.user_pages_count-- > 1)
     {
         int count = curr -> mm.user_pages_count;
         uint32_t index = curr -> mm.user_pages[count] >> 12;
@@ -121,5 +127,5 @@ void page_free(struct task *curr){
         remain_page++;
         memzero((void*)(curr -> mm.user_pages[count] | VIRT_BASE),PAGE_SIZE);
     }
-    curr -> mm.user_pages_count = 0;
+    //curr -> mm.user_pages_count = 0;
 }

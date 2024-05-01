@@ -19,9 +19,8 @@ extern void update_pgd(uint64_t pgd);
 struct task_queue run_queue;
 struct task_queue_elmt run_queue_elmt[64];
 struct task task_pool[64];
-char kernel_task_stack[64][4096];
-char user_task_stack[64][4096];
 extern uint64_t remain_page;
+extern struct page_t pages[PAGE_FRAMES_NUM];
 
 void context_switch(struct task *next){
     struct task *prev = get_current(); 
@@ -58,7 +57,12 @@ void zombie_reaper() {
                 task_pool[i].time_slice = 5;
                 task_pool[i].mm.pgd = 0;
                 task_pool[i].preempt_count = 1;
-                memzero(&kernel_task_stack[i],4096);
+                //free task i kernel stack page
+                memzero((void*)(task_pool[i].mm.kernel_pages[0] | VIRT_BASE), PAGE_SIZE);
+                uint32_t index = task_pool[i].mm.kernel_pages[0] >> 12;
+                pages[index].status = AVAL;
+                remain_page++;
+                //clear task i register_set
                 memzero(&task_pool[i].register_set,104);
             }
         }
@@ -73,8 +77,9 @@ int privilege_task_create(void(*func)()){
         if (task_pool[i].state == EXIT)
         {
             task_pool[i].state = RUNNING;
-            task_pool[i].register_set.x29 = (uint64_t) &kernel_task_stack[i][4095];
-            task_pool[i].register_set.sp = (uint64_t) &kernel_task_stack[i][4095];
+            uint64_t kernel_stack_page = allocate_kernel_page(&task_pool[i]);
+            task_pool[i].register_set.x29 = kernel_stack_page | 0xfff;
+            task_pool[i].register_set.sp = kernel_stack_page | 0xfff;
             task_pool[i].register_set.x30 = (uint64_t) func;
             break;
         }
@@ -95,10 +100,10 @@ void schedule(){
     context_switch(next);
 }
 
-int do_exec(uint64_t start, uint64_t size, uint64_t pc){
+int simple_loader(uint64_t start, uint64_t size, uint64_t pc){
     struct task* current_task = get_current();
     uint8_t *code_page = (uint8_t*) allocate_user_page(current_task,pc);
-    uint8_t *stack_page = (uint8_t*) allocate_user_page(current_task,USTACK_ADDR);
+    allocate_user_page(current_task,USTACK_ADDR); // map user stack pointer(SP_EL0)
     memcpy((uint8_t*)start, code_page, size);
 
     asm volatile("msr sp_el0, %0" : : "r"(USTACK_ADDR));
@@ -167,7 +172,7 @@ void user_program(){
     extern uint64_t _binary_user_img_end;
     uint64_t begin = (uint64_t)&_binary_user_img_start;
     uint64_t end = (uint64_t)&_binary_user_img_end;
-    do_exec(begin, end - begin+1, 0x1000);
+    simple_loader(begin, end - begin+1, 0x1000);
 }
 
 void schedule_init(){

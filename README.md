@@ -10,6 +10,8 @@
   * 實作User program loader將Simple shell code載入記憶體並為其建立page table
   * 實作User library為主程式提供進入點(entry point)以及系統呼叫(system call)並在主程式結束後呼叫exit
   * 為每一個user task建立屬於它的虛擬定址空間
+  * 實現page fault handler
+  * demo.c為測試fork()的功能是否正確
 # Reference
 * OSDI2020作業文件：https://grasslab.github.io/osdi/en/index.html
 * OSDI2023作業文件：https://oscapstone.github.io/index.html#

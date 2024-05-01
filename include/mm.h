@@ -28,6 +28,7 @@ struct page_t {
 void mm_init();
 uint64_t get_free_page();
 uint64_t allocate_user_page(struct task *task, uint64_t va);
+uint64_t allocate_kernel_page(struct task *task);
 void map_page(struct task *task, uint64_t va, uint64_t page);
 uint64_t map_table(uint64_t *table, uint32_t shift, uint64_t va, int* new_table);
 void map_table_entry(uint64_t *pte, uint64_t va, uint64_t pa);

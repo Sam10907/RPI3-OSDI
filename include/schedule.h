@@ -56,10 +56,9 @@ struct trapframe
 void context_switch(struct task *next);
 int privilege_task_create(void(*func)());
 void init();
-void exec_user_program(void (*func)());
 void task_init();
 void schedule();
-int do_exec(uint64_t start, uint64_t size, uint64_t pc);
+int simple_loader(uint64_t start, uint64_t size, uint64_t pc);
 void do_exit(int);
 void copy_process(struct trapframe *tf);
 void schedule_init();

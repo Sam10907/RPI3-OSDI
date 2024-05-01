@@ -4,12 +4,12 @@ double pow(double x, double y) {
     return x * pow(x, y - 1);
 }
 
-char *itox(int value, char *s) {
+char *itox64(uint64_t value, char *s) { //64-bit machine
     int idx = 0;
 
-    char tmp[64 + 1];
+    char tmp[16];
     int tidx = 0;
-    while (value) {
+    do {
         int r = value % 16;
         if (r < 10) {
             tmp[tidx++] = '0' + r;
@@ -18,7 +18,33 @@ char *itox(int value, char *s) {
             tmp[tidx++] = 'a' + r - 10;
         }
         value /= 16;
+    } while(value != 0 && tidx < 16);
+
+    // reverse tmp
+    int i;
+    for (i = tidx - 1; i >= 0; i--) {
+        s[idx++] = tmp[i];
     }
+    s[idx] = '\0';
+
+    return s;
+}
+
+char *itox32(uint32_t value, char *s) { //32-bit machine
+    int idx = 0;
+
+    char tmp[8];
+    int tidx = 0;
+    do {
+        int r = value % 16;
+        if (r < 10) {
+            tmp[tidx++] = '0' + r;
+        }
+        else {
+            tmp[tidx++] = 'a' + r - 10;
+        }
+        value /= 16;
+    } while(value != 0 && tidx < 8);
 
     // reverse tmp
     int i;
@@ -42,7 +68,27 @@ char *itoa(int value, char *s) {
     do {
         tmp[tidx++] = '0' + value % 10;
         value /= 10;
-    } while (value != 0 && tidx < 11);
+    } while (value != 0 && tidx < 10);
+
+    // reverse tmp
+    int i;
+    for (i = tidx - 1; i >= 0; i--) {
+        s[idx++] = tmp[i];
+    }
+    s[idx] = '\0';
+
+    return s;
+}
+
+char *uitoa(uint32_t value, char *s) {
+    int idx = 0;
+
+    char tmp[10];
+    int tidx = 0;
+    do {
+        tmp[tidx++] = '0' + value % 10;
+        value /= 10;
+    } while (value != 0 && tidx < 10);
 
     // reverse tmp
     int i;
@@ -114,8 +160,8 @@ unsigned int vsprintf(char *dst, char *fmt, __builtin_va_list args) {
             // hex
             if (*fmt == 'x') {
                 uint64_t arg = __builtin_va_arg(args, uint64_t);
-                char buf[64 + 1];
-                char *p = itox(arg, buf);
+                char buf[17];
+                char *p = itox64(arg, buf);
                 while (*p) {
                     *dst++ = *p++;
                 }
