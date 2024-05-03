@@ -136,10 +136,6 @@ el0_sync_invalid: //(el0 -> el1) (AARH-64)
 	load_all
 	eret
 el0_irq_invalid:
-	/*save_all
-	bl core_timer_interrupt
-	load_all
-	eret*/
 	save_all
 	bl irq_sp_switch
 	bl irq_return

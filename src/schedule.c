@@ -92,6 +92,7 @@ int privilege_task_create(void(*func)()){
 void init(){
     struct task* initial_task = task_queue_pop(&run_queue);
     update_current(initial_task);
+    core_timer_enable();
     init_task(&initial_task -> register_set);
 }
 

@@ -91,15 +91,6 @@ el1_start:
 	ldr x1, =VIRT_BASE
 	add sp, sp, x1
 
-	//core_timer_enable
-	mov x0, 1
-	msr cntp_ctl_el0, x0
-	mov x0, 0xfffffff
-	msr cntp_tval_el0, x0
-	mov x0, 2
-	ldr x1, =0x40000040
-	str x0, [x1]
-
 	ldr x0, =boot_main
     // enable MMU
     ldr x1, =SCTLR_VALUE_MMU_ENABLE
@@ -168,11 +159,23 @@ page_table_create:
 	add x0, x4, #PAGE_SIZE
 	create_page_map x0, x1, x2, x3, BOOT_PTE_NORMAL_ATTR, x4
 
-	/* mapping mmio-device */
+	/* mapping RAM and GPU peripherals */
 	mov x1, #DEVICE_BASE
 	ldr x2, =(VIRT_BASE | DEVICE_BASE)
 	ldr x3, =((VIRT_BASE | MAX_PHYSICAL_ADDR) - PAGE_SIZE)
 	create_page_map x0, x1, x2, x3, BOOT_PTE_DEVICE_ATTR, x4
+
+	/* mapping ARM local peripherals */
+	adrp x0, pg_dir
+	add x0, x0, #PAGE_SIZE
+	ldr x1, =(VIRT_BASE | MAX_PHYSICAL_ADDR)
+	/* set PUD entry */
+	lsr x1, x1, #PUD_SHIFT
+	and x1, x1, #(0x200 - 1)  // table index
+	mov x2, #MAX_PHYSICAL_ADDR
+	mov x3, #BOOT_PUD_DEVICE_ATTR
+	orr x2, x3, x2
+	str x2, [x0, x1, lsl #3]
 
 	mov x30, x29
 	ret
