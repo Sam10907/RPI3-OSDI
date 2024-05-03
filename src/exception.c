@@ -2,7 +2,7 @@
 #include "schedule.h"
 #include "Sys.h"
 #include "mm.h"
-#define EXPIRE_PERIOD 0xfffff00
+#define EXPIRE_PERIOD 0x2000000
 
 char irq_stack[4096];
 extern struct task* get_current ();
