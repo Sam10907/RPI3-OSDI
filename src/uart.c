@@ -1,6 +1,5 @@
-#include "reg.h"
 #include "uart.h"
-#include "my_string.h"
+
 void uart_init(){
 	//mini UART
 	*AUXENB |= (0x1 << 0);

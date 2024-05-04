@@ -20,4 +20,9 @@
 #define AUX_MU_LSR_REG ((volatile unsigned int*) (BASE + 0x215054))
 #define AUX_MU_IO_REG ((volatile unsigned int*) (BASE + 0x215040))
 
+//arm local peripherals
+#define ARM_PERIPHERALS_BASE (0xffff000000000000 | 0x40000000)
+#define CORE0_TIMER_IRQ_CTRL (ARM_PERIPHERALS_BASE + 0x40)
+#define CORE0_TIMER_IRQ_SRC ((volatile unsigned int*)(ARM_PERIPHERALS_BASE + 0x60))
+
 #endif

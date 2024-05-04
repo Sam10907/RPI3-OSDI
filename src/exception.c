@@ -6,7 +6,6 @@
 
 char irq_stack[4096];
 extern struct task* get_current ();
-extern struct task* get_user_current ();
 
 void show_exception_message(unsigned long long elr, unsigned long long esr){
 	int class = (esr >> 26) & 0b111111;
@@ -36,7 +35,6 @@ void core_timer_ISR(){
 		curr -> time_slice = 0;
 	}
 	//uart_printf("curr time slice %d\n",curr -> time_slice);
-	asm volatile("msr daifclr, #2");
 }
 
 void sys_get_taskid(struct trapframe *tf){
@@ -79,13 +77,21 @@ void sys_fork(struct trapframe *tf){
 	copy_process(tf);
 }
 
-void irq_sp_switch(){
+void irq_route(){
+	if (*CORE0_TIMER_IRQ_SRC & 0x2) // core timer interrupt
+	{
+		core_timer_ISR();
+	}
+	
+}
+
+void irq_handler(){
 	register char *irq_sp;
 	asm volatile("mov %0, sp" : "=r"(irq_sp)); // irq_sp is kernel sp
 	if (!((irq_sp >= irq_stack) && (irq_sp <= &irq_stack[4095]))){
 		asm volatile("mov sp, %0" : : "r"(&irq_stack[4095]));
 	}
-	core_timer_ISR();
+	irq_route();
 	//restore kernel stack pointer
 	if (!((irq_sp >= irq_stack) && (irq_sp <= &irq_stack[4095]))){
 		asm volatile("mov sp, %0" : : "r"(irq_sp));

@@ -1,5 +1,5 @@
 #include "timer.h"
-
+#include "reg.h"
 void core_timer_enable(){
     asm volatile ("mov x0, 1");
 	asm volatile ("msr cntp_ctl_el0, x0"); // enable timer

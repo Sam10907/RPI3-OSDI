@@ -109,7 +109,7 @@ el1_sync_invalid: //exception handler
 	eret
 el1_irq_invalid:
 	save_all
-	bl irq_sp_switch
+	bl irq_handler
 	bl irq_return
 	load_all
 	eret
@@ -137,7 +137,7 @@ el0_sync_invalid: //(el0 -> el1) (AARH-64)
 	eret
 el0_irq_invalid:
 	save_all
-	bl irq_sp_switch
+	bl irq_handler
 	bl irq_return
 	load_all
 	eret
