@@ -23,9 +23,9 @@ struct mm_struct
 {
     uint64_t pgd;
     int user_pages_count;
-	uint64_t user_pages[MAX_PROCESS_PAGES];
-	int kernel_pages_count;
-	uint64_t kernel_pages[MAX_PROCESS_PAGES];    
+    uint64_t user_pages[MAX_PROCESS_PAGES];
+    int kernel_pages_count;
+    uint64_t kernel_pages[MAX_PROCESS_PAGES];    
 };
 
 enum state{
