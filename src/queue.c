@@ -36,6 +36,6 @@ void print_queue_info(struct task_queue* q){
     struct task_queue_elmt *curr = q -> front;
     while(curr){
        uart_printf("task id: %d\n",curr -> task -> task_id);
-        curr = curr -> next;
+       curr = curr -> next;
     }
 }
