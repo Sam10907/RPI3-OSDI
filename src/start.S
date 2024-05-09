@@ -61,23 +61,23 @@ el1_start:
 	msr spsr_el1, x0
 
 	// setup tcr
-    ldr     x0, =TCR_CONFIG_DEFAULT
-    msr     tcr_el1, x0
+    	ldr     x0, =TCR_CONFIG_DEFAULT
+    	msr     tcr_el1, x0
 
-    // setup mair
-    ldr     x0, =MAIR_VALUE
-    msr     mair_el1, x0
-
-    // create page table
-    bl      page_table_create
+	// setup mair
+	ldr     x0, =MAIR_VALUE
+	msr     mair_el1, x0
+	
+	// create page table
+	bl      page_table_create
 
 	adrp x0, pg_dir
 	msr ttbr0_el1, x0  /* load PGD to the buttom translation based register. */
 	msr ttbr1_el1, x0  /* load PGD to the upper translation based register. */
 
-	 // clear bss
-    adr x1, bss_begin  //pc-relative address
-    adr x2, bss_end
+	// clear bss
+    	adr x1, bss_begin  //pc-relative address
+    	adr x2, bss_end
 	sub x2, x2, x1
 	lsr x2, x2, #3
 3: 
@@ -92,12 +92,11 @@ el1_start:
 	add sp, sp, x1
 
 	ldr x0, =boot_main
-    // enable MMU
-    ldr x1, =SCTLR_VALUE_MMU_ENABLE
-    mrs x2, sctlr_el1
-    orr x2, x2, x1
-    msr sctlr_el1, x2
-
+	// enable MMU
+	ldr x1, =SCTLR_VALUE_MMU_ENABLE
+	mrs x2, sctlr_el1
+	orr x2, x2, x1
+	msr sctlr_el1, x2
 	// indirect branch
 	br x0
 1:
