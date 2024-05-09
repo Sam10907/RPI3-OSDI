@@ -1,7 +1,7 @@
 #include "timer.h"
 #include "reg.h"
 void core_timer_enable(){
-    asm volatile ("mov x0, 1");
+    	asm volatile ("mov x0, 1");
 	asm volatile ("msr cntp_ctl_el0, x0"); // enable timer
 	asm volatile ("mov x0, 0x2000000");
 	asm volatile ("msr cntp_tval_el0, x0"); // set expired time
