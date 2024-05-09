@@ -36,23 +36,23 @@ char uart_read(){
 }
 
 void uart_write(unsigned int c){
-    do {
-        asm volatile("nop");
-    } while (!(*AUX_MU_LSR_REG & 0x20));
-    *AUX_MU_IO_REG = c;
+	do {
+		asm volatile("nop");
+	} while (!(*AUX_MU_LSR_REG & 0x20));
+	*AUX_MU_IO_REG = c;
 }
 
 void uart_printf(char* fmt, ...) {
-    __builtin_va_list args;
-    __builtin_va_start(args, fmt);
-
-    extern volatile unsigned char __kernel_end;  // defined in linker
-    char* s = (char*)&__kernel_end;              // put temporary string after code
+	__builtin_va_list args;
+	__builtin_va_start(args, fmt);
+	
+	extern volatile unsigned char __kernel_end;  // defined in linker
+	char* s = (char*)&__kernel_end;              // put temporary string after code
 	vsprintf(s, fmt, args);
-    while (*s) {
-        if (*s == '\n') uart_write('\r');
-        uart_write(*s++);
-    }
+	while (*s) {
+		if (*s == '\n') uart_write('\r');
+		uart_write(*s++);
+	}
 	 
 }
 
