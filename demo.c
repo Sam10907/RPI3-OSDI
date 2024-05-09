@@ -1,6 +1,6 @@
 void test_command1(){  // test fork functionality
-    int cnt = 0;
-  	if(fork() == 0) {
+	int cnt = 0;
+	if(fork() == 0) {
 		fork();
 		fork();
 		while(cnt < 10) {
@@ -16,8 +16,8 @@ void test_command1(){  // test fork functionality
 }
 
 void test_command2() { // test page fault
-  if(fork() == 0) {
-    int* a = 0x0; // a non-mapped address.
-    printf("%d\n", *a); // trigger simple page fault, child will die here.
-  }
+	if(fork() == 0) {
+		int* a = 0x0; // a non-mapped address.
+		printf("%d\n", *a); // trigger simple page fault, child will die here.
+	}
 }
