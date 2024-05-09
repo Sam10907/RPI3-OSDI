@@ -22,8 +22,8 @@
 	mrs x21, sp_el0
 	stp x30, x21, [sp, 16 * 15]
 	mrs x21, elr_el1
-    mrs x22, spsr_el1
-    stp x21, x22, [sp, #16 * 16]
+	mrs x22, spsr_el1
+	stp x21, x22, [sp, #16 * 16]
 .endm
 // load general registers from stack
 .macro load_all
@@ -57,7 +57,7 @@ exception_vector_table:
 	/* Current EL with SP0
        	當前系統運行在EL1時使用EL0的棧指針SP
        	這是一種異常錯誤的類型
-    */
+    	*/
 	b el1_sync_invalid
   	.align 7
 	b el1_irq_invalid
@@ -67,8 +67,8 @@ exception_vector_table:
 	b el1_error_invalid
 	.align 7
 	/* Current EL with SPx
-		當前系統運行在EL1時使用EL1的棧指針SP
-		這說明系統在內核態發生了異常
+	當前系統運行在EL1時使用EL1的棧指針SP
+	這說明系統在內核態發生了異常
  	*/
 	b el1_sync_invalid
 	.align 7
@@ -79,7 +79,7 @@ exception_vector_table:
 	b el1_error_invalid
 	.align 7
 	 /* Lower EL using AArch64
-		在用戶態的aarch64的程序發生了異常
+	在用戶態的aarch64的程序發生了異常
 	*/
 	b el0_sync_invalid
 	.align 7
@@ -90,7 +90,7 @@ exception_vector_table:
 	b el0_error_invalid
 	.align 7
 	/* Lower EL using AArch32
-		在用戶態的aarch32的程序發生了異常
+	在用戶態的aarch32的程序發生了異常
 	*/
 	b el0_sync_invalid
 	.align 7
