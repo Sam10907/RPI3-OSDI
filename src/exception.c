@@ -110,9 +110,9 @@ void irq_return(){
 
 void sys_call_router(uint64_t sys_call_num, struct trapframe* tf) {
 	switch (sys_call_num) {
-        case SYS_GET_TASK_ID:
-            sys_get_taskid(tf);
-            break;
+        	case SYS_GET_TASK_ID:
+            		sys_get_taskid(tf);
+            		break;
 		case SYS_EXIT:
 			sys_exit(tf);
 			break;
@@ -132,9 +132,9 @@ void sys_call_router(uint64_t sys_call_num, struct trapframe* tf) {
 }
 
 void page_fault_handler() {
-    register uint64_t fault_addr;
-    asm volatile("mrs %0, FAR_EL1": "=r"(fault_addr));
-    uart_printf("Page fault address at 0x%x, killed\n", fault_addr);
+	register uint64_t fault_addr;
+	asm volatile("mrs %0, FAR_EL1": "=r"(fault_addr));
+	uart_printf("Page fault address at 0x%x, killed\n", fault_addr);
 	do_exit(0);
 }
 
@@ -149,7 +149,7 @@ void syscall_table(unsigned long long elr, unsigned long long esr, struct trapfr
 		else
 		{
 			uint64_t syscall_num = tf->x[8];
-        	sys_call_router(syscall_num, tf);
+        		sys_call_router(syscall_num, tf);
 		}
 	}
 	else if(class == 0x24 ){
