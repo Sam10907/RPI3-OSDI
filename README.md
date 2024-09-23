@@ -2,6 +2,7 @@
 ### 已實作的功能
 * 使用mini UART實現基本的輸入輸出
 * Simple shell (user space)
+* 實現RAM Disk功能
 * Bootloader & Bootloader Self Relocation
   * 使用mini UART傳輸本地kernel image至RPI3的記憶體中
 * 實現系統呼叫和硬體中斷處理(e.g.CPU Core Timer Interrupt Handler)
@@ -12,7 +13,6 @@
   * 為每一個user task建立屬於它的虛擬定址空間
   * 實現page fault handler
   * demo.c為測試fork()的功能是否正確
-*實現RAM Disk功能
 # Reference
 * OSDI2020作業文件：https://grasslab.github.io/osdi/en/index.html
 * OSDI2023作業文件：https://oscapstone.github.io/index.html#
