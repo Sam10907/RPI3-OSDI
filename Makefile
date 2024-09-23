@@ -56,7 +56,7 @@ user_embed.elf: $(USER_OBJS_FILES) build/asm/Sys.o build/c/my_string.o
 # run emulator
 
 run: $(BUILD_DIR) kernel8.img
-	qemu-system-aarch64 -M raspi3b -kernel kernel8.img -display none -serial null -serial stdio
+	qemu-system-aarch64 -M raspi3b -kernel kernel8.img -initrd initramfs.cpio -display none -serial null -serial stdio
 
 tty: $(BUILD_DIR) kernel8.img
 	qemu-system-aarch64 -M raspi3b -kernel kernel8.img -display none -serial null -serial pty
